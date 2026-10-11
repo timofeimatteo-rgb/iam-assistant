@@ -1,0 +1,106 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}canvas{display:block}</style></head>
+<body><canvas id="c"></canvas>
+<script>
+// Minimal offline WebGL2 renderer for the I AM mascot sprite baker.
+// Reads raw part data exported from the .blend (positions/normals/uv/metal flag) and renders
+// procedural poses (no skeleton in the source model) onto a transparent canvas.
+const Q=new URLSearchParams(location.search); const W=+(Q.get('w')||320), H=+(Q.get('h')||400);
+const cv = document.getElementById('c'); cv.width = W; cv.height = H;
+const gl = cv.getContext('webgl2', {alpha: true, premultipliedAlpha: false, antialias: true, preserveDrawingBuffer: true});
+
+const VS = `#version 300 es
+in vec3 p; in vec3 n; in vec2 uv; in float metal; in float part; in float hw;
+uniform mat4 M[12]; uniform mat4 HEAD; uniform mat4 VP;
+out vec3 vn; out vec2 vuv; out float vm; out vec3 wp;
+void main(){
+  mat4 m = M[int(part)];
+  vec4 bp = m*vec4(p,1.0); vec3 bn = mat3(m)*n;
+  if(hw>0.0){ vec4 hp = HEAD*vec4(p,1.0); vec3 hn = mat3(HEAD)*n; bp = mix(bp,hp,hw); bn = mix(bn,hn,hw);}
+  wp = bp.xyz; vn = bn; vuv = uv; vm = metal; gl_Position = VP*bp; }`;
+const FS = `#version 300 es
+precision highp float; in vec3 vn; in vec2 vuv; in float vm; in vec3 wp; uniform sampler2D tex; out vec4 o;
+void main(){
+  vec3 N = normalize(vn); vec3 V = normalize(vec3(0.0,0.4,6.0)-wp);
+  vec3 L1 = normalize(vec3(-0.5,0.8,0.9)); vec3 L2 = normalize(vec3(0.9,0.3,-0.4));
+  vec3 base = vm>0.5 ? vec3(0.02) : pow(texture(tex,vuv).rgb, vec3(2.2));
+  float hemi = 0.55 + 0.45*N.y;
+  float d1 = max(dot(N,L1),0.0); float d2 = max(dot(N,L2),0.0);
+  vec3 H = normalize(L1+V); float sp = pow(max(dot(N,H),0.0), vm>0.5?80.0:24.0) * (vm>0.5?1.2:0.18);
+  float rim = pow(1.0-max(dot(N,V),0.0),3.0)*0.35;
+  vec3 c = base*(0.22*hemi + 0.85*d1 + 0.30*d2) + vec3(sp) + vec3(0.65,0.70,1.0)*rim*0.6;
+  o = vec4(pow(c, vec3(1.0/2.2)),1.0); }`;
+function sh(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(x);return x}
+const prog = gl.createProgram(); gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS)); gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS)); gl.linkProgram(prog);
+if(!gl.getProgramParameter(prog,gl.LINK_STATUS)) throw gl.getProgramInfoLog(prog);
+gl.useProgram(prog);
+
+// ---- small mat4 helpers (column-major) ----
+const I=()=>[1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
+function mul(a,b){const r=new Array(16).fill(0);for(let c=0;c<4;c++)for(let rr=0;rr<4;rr++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+rr]*b[c*4+k];r[c*4+rr]=s}return r}
+const T=(x,y,z)=>[1,0,0,0, 0,1,0,0, 0,0,1,0, x,y,z,1];
+const S=(x,y,z)=>[x,0,0,0, 0,y,0,0, 0,0,z,0, 0,0,0,1];
+const RX=a=>{const c=Math.cos(a),s=Math.sin(a);return [1,0,0,0, 0,c,s,0, 0,-s,c,0, 0,0,0,1]};
+const RY=a=>{const c=Math.cos(a),s=Math.sin(a);return [c,0,-s,0, 0,1,0,0, s,0,c,0, 0,0,0,1]};
+const RZ=a=>{const c=Math.cos(a),s=Math.sin(a);return [c,s,0,0, -s,c,0,0, 0,0,1,0, 0,0,0,1]};
+const about=(px,py,pz,R)=>mul(T(px,py,pz),mul(R,T(-px,-py,-pz)));
+const D=Math.PI/180;
+function persp(f,a,n,fa){const t=1/Math.tan(f/2);return [t/a,0,0,0, 0,t,0,0, 0,0,(fa+n)/(n-fa),-1, 0,0,2*fa*n/(n-fa),0]}
+
+// Rig constants (Y-up, character faces +Z). Derived from the exported part bounding boxes.
+const NECK_Y = 0.12, SHOULDER = [0.30, 0.0, 0.02], HIP = [0.52, -0.80, 0.0];
+const PART = {body:0, head:1, armL:2, armR:3, legL:4, legR:5, acc:6};
+let count = 0;
+
+async function load(){
+  const meta = await (await fetch('mascot.json')).json();
+  const buf = new Float32Array(await (await fetch('mascot.bin')).arrayBuffer());
+  count = meta.count;
+  const P = buf.subarray(0, count*3), N = buf.subarray(count*3, count*6), UV = buf.subarray(count*6, count*8), MT = buf.subarray(count*8, count*9);
+  const part = new Float32Array(count), hw = new Float32Array(count);
+  const ARM = new Set(['Circle','Cube.002','Cube.003','Cube.004','Cylinder','Cylinder.001','Cylinder.002']);
+  for(const p of meta.parts){
+    let cx=0; for(let i=p.start;i<p.start+p.count;i++) cx+=P[i*3]; cx/=p.count;
+    let id = PART.body;
+    if(ARM.has(p.name)) id = cx<0?PART.armL:PART.armR;
+    else if(p.name.startsWith('ноги')) id = cx<0?PART.legL:PART.legR;
+    else if(p.name==='Torus.001') id = PART.head;
+    for(let i=p.start;i<p.start+p.count;i++){
+      part[i]=id;
+      if(p.name.startsWith('база')){ const y=P[i*3+1]; const t=Math.min(1,Math.max(0,(y-(NECK_Y-0.08))/0.16)); hw[i]=t*t*(3-2*t); }
+    }
+  }
+  const attr=(name,data,size)=>{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);const l=gl.getAttribLocation(prog,name);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,size,gl.FLOAT,false,0,0)};
+  attr('p',P,3);attr('n',N,3);attr('uv',UV,2);attr('metal',MT,1);attr('part',part,1);attr('hw',hw,1);
+  const img = new Image(); img.src='mascot_tex.jpg'; await img.decode();
+  const t=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,t); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,img);
+  gl.generateMipmap(gl.TEXTURE_2D); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);
+  gl.enable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE);
+  window.ready = true;
+}
+
+// pose: angles in degrees. arm*Down: rotation from T-pose down to the side; arm*Fwd: swing forward.
+window.render = function(pose={}){
+  const g=k=>pose[k]||0;
+  const sq = 1+g('squash');           // >1 taller, <1 shorter
+  const root = mul(T(g('x'), g('y')-0.15, 0), mul(RY(g('turn')*D), mul(RZ(g('lean')*D), S(1/Math.sqrt(sq),sq,1/Math.sqrt(sq)))));
+  const hipBase = -1.22;
+  const body = mul(root, about(0,hipBase,0, RZ(g('sway')*D)));
+  const head = mul(body, about(0,NECK_Y,0, mul(RY(g('headTurn')*D), mul(RZ(g('headTilt')*D), RX(g('nod')*D)))));
+  const arm=(side,down,fwd,twist)=>{const sx=side*SHOULDER[0];
+     return mul(body, about(sx,SHOULDER[1],SHOULDER[2], mul(RY(-side*fwd*D), mul(RZ(-side*down*D), RX(twist*D)))))};
+  const armL = arm(-1, g('armLDown'), g('armLFwd'), g('armLTwist'));
+  const armR = arm( 1, g('armRDown'), g('armRFwd'), g('armRTwist'));
+  const leg=(side,lift,kick,spread)=> mul(root, about(side*0.4,-0.82,0, mul(T(0,lift,0), mul(RZ(-side*spread*D), RX(-kick*D)))));
+  const legL = leg(-1, g('legLLift'), g('legLKick'), g('legSpread')), legR = leg(1, g('legRLift'), g('legRKick'), g('legSpread'));
+  const Ms=[body,head,armL,armR,legL,legR,body,I(),I(),I(),I(),I()];
+  const cam = mul(persp(20*D,W/H,0.1,50), mul(T(0,0,-(pose.dist||18.6)), mul(RX(4*D), T(0,-0.05,0))));
+  gl.uniformMatrix4fv(gl.getUniformLocation(prog,'M'),false,new Float32Array(Ms.flat()));
+  gl.uniformMatrix4fv(gl.getUniformLocation(prog,'HEAD'),false,new Float32Array(head));
+  gl.uniformMatrix4fv(gl.getUniformLocation(prog,'VP'),false,new Float32Array(cam));
+  gl.viewport(0,0,W,H); gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES,0,count);
+  return cv.toDataURL('image/png');
+};
+load();
+</script></body></html>

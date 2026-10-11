@@ -1,0 +1,17 @@
+{
+  "name": "iam-assistant",
+  "private": true,
+  "version": "0.1.0",
+  "description": "I AM — помощник дизайн-студии с маскотом и локальным ИИ",
+  "scripts": {
+    "fonts": "node scripts/copy-fonts.mjs",
+    "test": "node --test tests/core.test.mjs",
+    "tauri": "tauri",
+    "dev": "npm run fonts && tauri dev",
+    "build": "npm run fonts && tauri build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "@fontsource-variable/montserrat": "^5"
+  }
+}

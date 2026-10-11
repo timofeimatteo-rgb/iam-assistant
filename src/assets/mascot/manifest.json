@@ -1,0 +1,62 @@
+{
+ "fps": 12,
+ "frameW": 226,
+ "frameH": 360,
+ "states": {
+  "idle": {
+   "frames": 24,
+   "cols": 8,
+   "rows": 3,
+   "loop": true
+  },
+  "greet": {
+   "frames": 24,
+   "cols": 8,
+   "rows": 3,
+   "loop": false
+  },
+  "focus": {
+   "frames": 24,
+   "cols": 8,
+   "rows": 3,
+   "loop": true
+  },
+  "think": {
+   "frames": 24,
+   "cols": 8,
+   "rows": 3,
+   "loop": true
+  },
+  "joy": {
+   "frames": 16,
+   "cols": 8,
+   "rows": 2,
+   "loop": false
+  },
+  "break": {
+   "frames": 24,
+   "cols": 8,
+   "rows": 3,
+   "loop": true
+  },
+  "exercise": {
+   "frames": 16,
+   "cols": 8,
+   "rows": 2,
+   "loop": true
+  },
+  "dance": {
+   "frames": 24,
+   "cols": 8,
+   "rows": 3,
+   "loop": true
+  },
+  "silly": {
+   "frames": 24,
+   "cols": 8,
+   "rows": 3,
+   "loop": false
+  }
+ },
+ "bytes": 2321224
+}
