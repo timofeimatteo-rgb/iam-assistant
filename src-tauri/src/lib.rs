@@ -168,6 +168,14 @@ fn notify(app: AppHandle, title: String, body: String) -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
+/// Номер фазы самопроверки (аргумент --selftest=N), 0 — обычный запуск.
+#[tauri::command]
+fn selftest_phase() -> u32 {
+    std::env::args()
+        .find_map(|a| a.strip_prefix("--selftest=").and_then(|n| n.parse().ok()))
+        .unwrap_or(0)
+}
+
 #[tauri::command]
 fn quit_app(app: AppHandle) {
     save_mascot_pos(&app);
@@ -300,6 +308,7 @@ pub fn run() {
             autostart_set,
             notify,
             quit_app,
+            selftest_phase,
         ])
         .setup(move |app| {
             let handle = app.handle().clone();

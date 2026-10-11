@@ -261,5 +261,14 @@ async function main() {
   }, 1000);
   tick();
   if (!isTauri) window.__mascot = { sprite, tick, showReminder, bubble };
+  // самопроверка в CI: приложение запущено с --selftest=1 / --selftest=2
+  let phase = 0; try { phase = isTauri ? await invoke('selftest_phase') : 0; } catch {}
+  if (phase) {
+    if (phase === 2) invoke('open_main', { tab: 'chat' });
+    const { selftest } = await import('./selftest.js');
+    await selftest(phase, { tick, clearFire: () => { currentFire = null; }, reloadSettings: async () => { settings = await repo.get('settings'); applySettings(); } });
+    sprite.play('dance', { duration: 20000 }); bubble('Самопроверка завершена', { ttl: 0, important: true });
+    setTimeout(() => invoke('quit_app'), 25000);
+  }
 }
 main();

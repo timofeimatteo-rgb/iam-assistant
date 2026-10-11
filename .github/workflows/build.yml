@@ -30,10 +30,12 @@ jobs:
             os: macos-14
             fetch: bash scripts/fetch-llama.sh
             artifact: src-tauri/target/release/bundle/dmg/*.dmg
+            verify: bash scripts/ci-verify-mac.sh
           - name: Windows x64
             os: windows-latest
             fetch: pwsh -File scripts/fetch-llama.ps1
             artifact: src-tauri/target/release/bundle/nsis/*.exe
+            verify: pwsh -File scripts/ci-verify-win.ps1
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -68,3 +70,22 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ matrix.artifact }}
+      - name: Проверка на настоящей ОС (самопроверка приложения + локальная модель)
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        timeout-minutes: 40
+        env:
+          MODELS_TO_TEST: Qwen3.5-2B-Q4_K_M.gguf gemma-4-E2B-it-Q4_K_M.gguf
+        run: ${{ matrix.verify }}
+      - name: Публикация результатов проверки (ветка ci-results)
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        shell: bash
+        run: |
+          git config user.name "ci"; git config user.email "ci@users.noreply.github.com"
+          B="ci-results-${{ matrix.os }}"
+          mkdir -p /tmp/res && cp -r ci-out/. /tmp/res/
+          git checkout --orphan "$B" && git rm -rfq . >/dev/null 2>&1 || true
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -r /tmp/res/. . && echo "${{ github.sha }}" > COMMIT
+          git add -A && git commit -qm "Результаты проверки ${{ github.sha }}" && git push -f origin "$B"
