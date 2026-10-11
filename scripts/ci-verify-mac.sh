@@ -46,5 +46,13 @@ run_phase() {
 }
 run_phase 1 a
 run_phase 2 b
+# фаза 3: обычный запуск, только маскот (рабочее окно закрыто) — память в ожидании
+"$BIN" > /dev/null 2>&1 &
+PID3=$!; sleep 30
+ps -o rss= -p $PID3 | awk '{print "idle_mascot_only_main_rss_kb: "$1}' >> "$OUT/rss-idle.txt"
+# процессы WebKit, запущенные для этого приложения (WebContent/Networking/GPU) — по времени старта после запуска
+ps -axo pid=,rss=,lstart=,comm= | grep -E "com.apple.WebKit" | awk '{print}' >> "$OUT/rss-idle-webkit.txt"
+screencapture -x "$OUT/screen-idle.png" || true
+kill $PID3 2>/dev/null || true
 cp "$HOME/Library/Application Support/studio.iam.assistant/llama.log" "$OUT/llama.log" 2>/dev/null || true
 ls -la "$OUT"

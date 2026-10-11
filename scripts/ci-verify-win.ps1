@@ -58,5 +58,13 @@ foreach ($ph in @(@(1, "a"), @(2, "b"))) {
   if (Test-Path $report) { Copy-Item $report $Out } else { "нет отчёта фазы $n" | Out-File "$Out\selftest$($ph[1])-missing.txt" }
   Copy-Item "$data\data\selftestp$($ph[1]).json" $Out -ErrorAction SilentlyContinue
 }
+# фаза 3: обычный запуск, только маскот — память в ожидании
+$p = Start-Process -FilePath $exe.FullName -PassThru
+Start-Sleep 30
+"idle_mascot_only_tree_working_set_bytes: $(TreeRss $p.Id)" | Out-File -Append "$Out\rss-idle.txt"
+$all = Get-CimInstance Win32_Process
+"idle_main_process_working_set_bytes: $(($all | Where-Object { $_.ProcessId -eq $p.Id }).WorkingSetSize)" | Out-File -Append "$Out\rss-idle.txt"
+Shot "$Out\screen-idle.png"
+Stop-Process -Id $p.Id -Force
 Copy-Item "$data\llama.log" "$Out\llama.log" -ErrorAction SilentlyContinue
 Get-ChildItem $Out

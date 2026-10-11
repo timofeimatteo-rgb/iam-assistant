@@ -18,5 +18,9 @@ foreach ($kind in @("cpu", "vulkan")) {
   Copy-Item $server.FullName $Dest -Force
   Get-ChildItem $server.DirectoryName -Filter "*.dll" | Copy-Item -Destination $Dest -Force
 }
+# библиотеки других утилит llama.cpp серверу не нужны
+Get-ChildItem $Dest -Filter "*-impl.dll" | Where-Object { $_.Name -ne "llama-server-impl.dll" } | Remove-Item -Force
 Get-ChildItem $Dest | Format-Table Name, Length
 & "$Dest\llama-server.exe" --version
+if ($LASTEXITCODE -ne 0) { throw "llama-server не запускается после очистки" }
+& "$Dest\llama-server.exe" --list-devices
