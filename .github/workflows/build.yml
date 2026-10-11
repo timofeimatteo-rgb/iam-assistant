@@ -65,10 +65,18 @@ jobs:
           name: I-AM-${{ matrix.os }}
           path: ${{ matrix.artifact }}
           if-no-files-found: error
-      - name: Релиз (для тегов v*)
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Релиз (обновляется при каждой сборке main)
+        if: github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v0.1.0
+          name: I AM 0.1.0
+          target_commitish: ${{ github.sha }}
+          make_latest: true
+          body: |
+            Помощник студии I AM: маскот, задачи, таймер, напоминания и локальный ИИ.
+            macOS (Apple Silicon): файл .dmg · Windows 10/11: файл -setup.exe
+            Инструкция по установке — в README репозитория.
           files: ${{ matrix.artifact }}
       - name: Проверка на настоящей ОС (самопроверка приложения + локальная модель)
         if: github.event_name != 'pull_request'
