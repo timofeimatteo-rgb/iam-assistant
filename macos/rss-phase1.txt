@@ -1,0 +1,2 @@
+app_main_process_rss_kb: 102144
+app_plus_webkit_rss_kb: 348112

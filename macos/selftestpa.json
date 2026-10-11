@@ -1,0 +1,247 @@
+{
+ "phase": 1,
+ "at": "2026-10-11T19:43:30.114Z",
+ "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko)",
+ "checks": [
+  {
+   "name": "хранение: запись задачи",
+   "ok": true,
+   "ms": 23
+  },
+  {
+   "name": "настройки: первый запуск пройден",
+   "ok": true,
+   "ms": 12
+  },
+  {
+   "name": "автозапуск: включить",
+   "ok": true,
+   "ms": 29
+  },
+  {
+   "name": "автозапуск: выключить",
+   "ok": true,
+   "ms": 27
+  },
+  {
+   "name": "системное уведомление",
+   "ok": true,
+   "ms": 42
+  },
+  {
+   "name": "окно маскота: изменение размера",
+   "ok": true,
+   "ms": 25
+  },
+  {
+   "name": "напоминание срабатывает",
+   "ok": true,
+   "ms": 76
+  },
+  {
+   "name": "«Не беспокоить» задерживает напоминание",
+   "ok": true,
+   "ms": 294
+  },
+  {
+   "name": "ресурсы в ожидании",
+   "ok": true,
+   "value": {
+    "app_rss": 103809024,
+    "app_size": 7396674,
+    "engine_size": 70815760,
+    "llm_rss": 0,
+    "models_size": 4387574112
+   },
+   "ms": 47
+  },
+  {
+   "name": "сведения о системе",
+   "ok": true,
+   "value": {
+    "arch": "aarch64",
+    "cpus": 3,
+    "free_disk": 36308634568,
+    "os": "macos",
+    "total_ram": 7516192768
+   },
+   "ms": 37
+  },
+  {
+   "name": "модель Gemma 4 E2B [GPU]: загрузка в память",
+   "ok": true,
+   "value": {
+    "gpu": true,
+    "port": 49207,
+    "state": "ready"
+   },
+   "ms": 36550
+  },
+  {
+   "name": "модель Gemma 4 E2B [GPU]: ответ по-русски",
+   "ok": false,
+   "value": {
+    "reason": "stop",
+    "text": "<unused20><unused24><unused24><unused31><unused43><|\"|><unused3><unused33><unused44><unused19><unused17><unused13><unused5><unused47><unused38><unused45><unused15><unused21><unused27><unused44><unused24><unused41><unused37><unused10><unused30><unused1><unused38><tool_response|><unused19><unused5>",
+    "first_token_ms": 1434,
+    "chars_per_s": 38,
+    "cyrillic": false,
+    "broken": true,
+    "reasoning_chars": 0
+   },
+   "ms": 9250
+  },
+  {
+   "name": "модель Gemma 4 E2B [GPU]: память при общении",
+   "ok": true,
+   "value": {
+    "file": "gemma-4-E2B-it-Q4_K_M.gguf",
+    "port": 49207,
+    "rss": 2967388160,
+    "state": "ready"
+   },
+   "ms": 36
+  },
+  {
+   "name": "модель Gemma 4 E2B [GPU]: остановка генерации",
+   "ok": true,
+   "value": "не остановилась: stop",
+   "ms": 1504
+  },
+  {
+   "name": "модель Gemma 4 E2B [GPU]: выгрузка",
+   "ok": true,
+   "ms": 39
+  },
+  {
+   "name": "модель Gemma 4 E2B [процессор]: загрузка в память",
+   "ok": true,
+   "value": {
+    "gpu": false,
+    "port": 49331,
+    "state": "ready"
+   },
+   "ms": 4882
+  },
+  {
+   "name": "модель Gemma 4 E2B [процессор]: ответ по-русски",
+   "ok": true,
+   "value": {
+    "reason": "stop",
+    "text": "Попробуйте технику Помодоро, работая сфокусированно в течение короткого времени, а затем делайте короткий перерыв на разминку или прогулку. Это поможет освежить мозг и повысить продуктивность.",
+    "first_token_ms": 779,
+    "chars_per_s": 105,
+    "cyrillic": true,
+    "broken": false,
+    "reasoning_chars": 0
+   },
+   "ms": 2615
+  },
+  {
+   "name": "модель Gemma 4 E2B [процессор]: память при общении",
+   "ok": true,
+   "value": {
+    "file": "gemma-4-E2B-it-Q4_K_M.gguf",
+    "port": 49331,
+    "rss": 3129851904,
+    "state": "ready"
+   },
+   "ms": 16
+  },
+  {
+   "name": "модель Gemma 4 E2B [процессор]: выгрузка",
+   "ok": true,
+   "ms": 18
+  },
+  {
+   "name": "модель Qwen3.5 2B [GPU]: загрузка в память",
+   "ok": true,
+   "value": {
+    "gpu": true,
+    "port": 49350,
+    "state": "ready"
+   },
+   "ms": 6707
+  },
+  {
+   "name": "модель Qwen3.5 2B [GPU]: ответ по-русски",
+   "ok": false,
+   "value": {
+    "reason": "stop",
+    "text": "9BB1=9D.F!)2/-!4A#(.H)#B!;D$<7:79HBF<:,F'-1/7;-A!)?74D$&B;6A*=B+3#?D:<(&%E94/,%6*5F3D0A+!&)!6!7,>>3)&B&\"6D$=:5*4'BC$8)G(((&*D(60%.G%:'(C)&8;'3C!8DB1A;%?'AG</>F1",
+    "first_token_ms": 1397,
+    "chars_per_s": 6,
+    "cyrillic": false,
+    "broken": true,
+    "reasoning_chars": 0
+   },
+   "ms": 27556
+  },
+  {
+   "name": "модель Qwen3.5 2B [GPU]: память при общении",
+   "ok": true,
+   "value": {
+    "file": "Qwen3.5-2B-Q4_K_M.gguf",
+    "port": 49350,
+    "rss": 2896609280,
+    "state": "ready"
+   },
+   "ms": 16
+  },
+  {
+   "name": "модель Qwen3.5 2B [GPU]: остановка генерации",
+   "ok": true,
+   "value": {
+    "reason": "cancelled",
+    "chunks_before_stop": 4
+   },
+   "ms": 1534
+  },
+  {
+   "name": "модель Qwen3.5 2B [GPU]: выгрузка",
+   "ok": true,
+   "ms": 28
+  },
+  {
+   "name": "модель Qwen3.5 2B [процессор]: загрузка в память",
+   "ok": true,
+   "value": {
+    "gpu": false,
+    "port": 49377,
+    "state": "ready"
+   },
+   "ms": 3648
+  },
+  {
+   "name": "модель Qwen3.5 2B [процессор]: ответ по-русски",
+   "ok": true,
+   "value": {
+    "reason": "stop",
+    "text": "Привет! Вы можете сделать перерыв, сядь, поешь чипсы или просто выпей стакан воды.",
+    "first_token_ms": 589,
+    "chars_per_s": 81,
+    "cyrillic": true,
+    "broken": false,
+    "reasoning_chars": 0
+   },
+   "ms": 1608
+  },
+  {
+   "name": "модель Qwen3.5 2B [процессор]: память при общении",
+   "ok": true,
+   "value": {
+    "file": "Qwen3.5-2B-Q4_K_M.gguf",
+    "port": 49377,
+    "rss": 2909126656,
+    "state": "ready"
+   },
+   "ms": 13
+  },
+  {
+   "name": "модель Qwen3.5 2B [процессор]: выгрузка",
+   "ok": true,
+   "ms": 24
+  }
+ ],
+ "current": "модель Qwen3.5 2B [процессор]: выгрузка"
+}

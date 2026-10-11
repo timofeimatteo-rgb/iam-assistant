@@ -1,0 +1,50 @@
+app: 76460 KB (весь пакет .app)
+engine: 69232 KB (llama.cpp)
+app_without_engine: 7228 KB
+binary: 7289600 bytes
+dmg: 28819409 bytes
+mascot_assets: 2312 KB
+Apple M1 (Virtual)
+ram: 7516192768
+ProductName:		macOS
+ProductVersion:		14.8.9
+BuildVersion:		23J631
+total 138464
+drwxr-xr-x  38 runner  staff     1216 Oct 11 19:42 .
+drwxr-xr-x   4 runner  staff      128 Oct 11 19:42 ..
+-rwxr-xr-x   1 runner  staff   769184 Oct 11 19:40 libggml-base.0.26.0.dylib
+-rwxr-xr-x   1 runner  staff   769184 Oct 11 19:40 libggml-base.0.dylib
+-rwxr-xr-x   1 runner  staff   769184 Oct 11 19:40 libggml-base.dylib
+-rwxr-xr-x   1 runner  staff    76864 Oct 11 19:40 libggml-blas.0.26.0.dylib
+-rwxr-xr-x   1 runner  staff    76864 Oct 11 19:40 libggml-blas.0.dylib
+-rwxr-xr-x   1 runner  staff    76864 Oct 11 19:40 libggml-blas.dylib
+-rwxr-xr-x   1 runner  staff   975504 Oct 11 19:40 libggml-cpu.0.26.0.dylib
+-rwxr-xr-x   1 runner  staff   975504 Oct 11 19:40 libggml-cpu.0.dylib
+-rwxr-xr-x   1 runner  staff   975504 Oct 11 19:40 libggml-cpu.dylib
+-rwxr-xr-x   1 runner  staff  5572640 Oct 11 19:40 libggml-metal.0.26.0.dylib
+-rwxr-xr-x   1 runner  staff  5572640 Oct 11 19:40 libggml-metal.0.dylib
+-rwxr-xr-x   1 runner  staff  5572640 Oct 11 19:40 libggml-metal.dylib
+-rwxr-xr-x   1 runner  staff   210016 Oct 11 19:40 libggml-rpc.0.26.0.dylib
+-rwxr-xr-x   1 runner  staff   210016 Oct 11 19:40 libggml-rpc.0.dylib
+-rwxr-xr-x   1 runner  staff   210016 Oct 11 19:40 libggml-rpc.dylib
+-rwxr-xr-x   1 runner  staff    78224 Oct 11 19:40 libggml.0.26.0.dylib
+-rwxr-xr-x   1 runner  staff    78224 Oct 11 19:40 libggml.0.dylib
+-rwxr-xr-x   1 runner  staff    78224 Oct 11 19:40 libggml.dylib
+-rwxr-xr-x   1 runner  staff    74720 Oct 11 19:40 libllama-batched-bench-impl.dylib
+-rwxr-xr-x   1 runner  staff   341152 Oct 11 19:40 libllama-bench-impl.dylib
+-rwxr-xr-x   1 runner  staff   256000 Oct 11 19:40 libllama-cli-impl.dylib
+-rwxr-xr-x   1 runner  staff  7737520 Oct 11 19:40 libllama-common.0.6.0.dylib
+-rwxr-xr-x   1 runner  staff  7737520 Oct 11 19:40 libllama-common.0.dylib
+-rwxr-xr-x   1 runner  staff  7737520 Oct 11 19:40 libllama-common.dylib
+-rwxr-xr-x   1 runner  staff   122352 Oct 11 19:40 libllama-completion-impl.dylib
+-rwxr-xr-x   1 runner  staff    73408 Oct 11 19:40 libllama-fit-params-impl.dylib
+-rwxr-xr-x   1 runner  staff   174528 Oct 11 19:40 libllama-perplexity-impl.dylib
+-rwxr-xr-x   1 runner  staff   114624 Oct 11 19:40 libllama-quantize-impl.dylib
+-rwxr-xr-x   1 runner  staff  9210256 Oct 11 19:40 libllama-server-impl.dylib
+-rwxr-xr-x   1 runner  staff  3289872 Oct 11 19:40 libllama.0.6.0.dylib
+-rwxr-xr-x   1 runner  staff  3289872 Oct 11 19:40 libllama.0.dylib
+-rwxr-xr-x   1 runner  staff  3289872 Oct 11 19:40 libllama.dylib
+-rwxr-xr-x   1 runner  staff  1417040 Oct 11 19:40 libmtmd.0.6.0.dylib
+-rwxr-xr-x   1 runner  staff  1417040 Oct 11 19:40 libmtmd.0.dylib
+-rwxr-xr-x   1 runner  staff  1417040 Oct 11 19:40 libmtmd.dylib
+-rwxr-xr-x   1 runner  staff    68128 Oct 11 19:40 llama-server
