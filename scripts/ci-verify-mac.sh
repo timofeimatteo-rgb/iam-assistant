@@ -15,6 +15,7 @@ mkdir -p "$DATA/models"
   echo "mascot_assets: $(du -sk src/assets/mascot | cut -f1) KB"
   sysctl -n machdep.cpu.brand_string; echo "ram: $(sysctl -n hw.memsize)"; sw_vers
 } > "$OUT/sizes.txt" 2>&1
+ls -la "$APP/Contents/Resources/llama" >> "$OUT/sizes.txt"
 cat "$OUT/sizes.txt"
 
 for f in ${MODELS_TO_TEST:-Qwen3.5-2B-Q4_K_M.gguf}; do
@@ -36,11 +37,12 @@ run_phase() {
   ps -o rss= -p $pid | awk '{print "app_main_process_rss_kb: "$1}' >> "$OUT/rss-phase$n.txt"
   ps -axo rss=,comm= | grep -i -E "WebContent|iam-assistant|I AM" | awk '{s+=$1} END {print "app_plus_webkit_rss_kb: "s}' >> "$OUT/rss-phase$n.txt"
   screencapture -x "$OUT/screen-phase$n-start.png" || true
-  for i in $(seq 1 120); do [ -f "$report" ] && break; sleep 5; done
+  for i in $(seq 1 300); do [ -f "$report" ] && break; sleep 5; done
   sleep 4; screencapture -x "$OUT/screen-phase$n-end.png" || true
   for i in $(seq 1 30); do kill -0 $pid 2>/dev/null || break; sleep 2; done
   kill $pid 2>/dev/null || true
   cp "$report" "$OUT/" 2>/dev/null || echo "нет отчёта фазы $n" > "$OUT/selftest$2-missing.txt"
+  cp "$DATA/data/selftestp$2.json" "$OUT/" 2>/dev/null || true
 }
 run_phase 1 a
 run_phase 2 b

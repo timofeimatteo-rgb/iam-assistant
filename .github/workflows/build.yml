@@ -73,7 +73,7 @@ jobs:
       - name: Проверка на настоящей ОС (самопроверка приложения + локальная модель)
         if: github.event_name != 'pull_request'
         continue-on-error: true
-        timeout-minutes: 40
+        timeout-minutes: 60
         env:
           MODELS_TO_TEST: Qwen3.5-2B-Q4_K_M.gguf gemma-4-E2B-it-Q4_K_M.gguf
         run: ${{ matrix.verify }}

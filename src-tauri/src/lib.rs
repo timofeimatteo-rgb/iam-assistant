@@ -38,17 +38,17 @@ fn open_main_window(app: &AppHandle, tab: &str) -> Result<(), String> {
         let _ = w.emit("navigate", json!({ "tab": tab }));
         return Ok(());
     }
-    // рабочее окно создаётся только по запросу и уничтожается при закрытии — экономия памяти
-    let url = if tab.is_empty() {
-        "index.html".to_string()
-    } else {
-        format!("index.html#{tab}")
-    };
-    WebviewWindowBuilder::new(app, "main", WebviewUrl::App(url.into()))
+    // рабочее окно создаётся только по запросу и уничтожается при закрытии — экономия памяти.
+    // Вкладку передаём через скрипт инициализации: «#» в адресе на Windows кодируется и ломает загрузку.
+    WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
         .title("I AM — помощник")
         .inner_size(1120.0, 740.0)
         .min_inner_size(380.0, 520.0)
         .center()
+        .initialization_script(&format!(
+            "window.__IAM_TAB = {};",
+            serde_json::to_string(tab).unwrap_or_default()
+        ))
         .build()
         .map_err(|e| e.to_string())?;
     Ok(())

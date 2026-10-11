@@ -66,7 +66,8 @@ html, body { height: 100%; overflow: hidden; }
 .model-pill.busy i { background: var(--blue); animation: pulse 1s ease-in-out infinite; }
 .model-pill .ico { width: 15px; height: 15px; color: var(--muted); }
 @keyframes pulse { 50% { opacity: .25; } }
-#dndChip { width: auto; padding: 0 8px; gap: 6px; font-size: 12.5px; font-weight: 600; }
+#dndChip { width: auto; display: inline-flex; align-items: center; padding: 0 9px; gap: 6px; font-size: 12.5px; font-weight: 600; white-space: nowrap; border-radius: 999px; }
+#dndChip span:empty { display: none; }
 #dndChip.on { background: var(--ink); color: #fff; }
 
 .chat { flex: 1; min-height: 0; display: flex; flex-direction: column; }

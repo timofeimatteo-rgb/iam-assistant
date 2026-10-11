@@ -86,3 +86,13 @@ export function guardClaims(text, hasActions) {
   const out = text.replace(CLAIM, (_, pre) => { flagged = true; return pre + (hasActions ? 'Предлагаю это сделать — подтвердите ниже.' : ''); });
   return { text: out.replace(/\s{2,}/g, ' ').trim(), flagged };
 }
+
+// Признак «мусора» в ответе: так бывает, если видеоускорение работает неправильно
+// (редкие драйверы или виртуальные машины). Тогда приложение переключается на процессор.
+export function looksBroken(text) {
+  const t = (text || '').replace(/\s+/g, '');
+  if (t.length < 8) return false;
+  if (/<unused\d+>|<\|"\|>|<tool_call\|>/.test(text)) return true;
+  const letters = (t.match(/\p{L}/gu) || []).length;
+  return letters / t.length < 0.45;
+}

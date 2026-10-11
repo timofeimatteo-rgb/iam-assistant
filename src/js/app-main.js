@@ -50,6 +50,6 @@ async function main() {
   listen('navigate', (e) => route(e.payload.tab));
   setInterval(renderChips, 30000);
   const s = await repo.get('settings');
-  route(s.firstRunDone ? location.hash : 'welcome');
+  route(s.firstRunDone ? (window.__IAM_TAB || location.hash) : 'welcome');
 }
 main();

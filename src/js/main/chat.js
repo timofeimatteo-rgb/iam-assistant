@@ -170,8 +170,18 @@ async function askLLM(text) {
   const today = Tasks.today(tasks);
   const system = L.systemPrompt({ name: settings.userName, facts: memory.facts, tasks: today, current: tasks.items.find((t) => t.id === tasks.currentId) });
   const prior = history.slice(0, -1).filter((x) => x.role !== 'app');
-  const { raw, reason, bubble } = await stream(L.buildRequest({ system, history: prior, user: text }), null);
+  let { raw, reason, bubble } = await stream(L.buildRequest({ system, history: prior, user: text }), null);
   if (reason === 'error') { bubble.remove(); appMsg('Модель не ответила. Попробуй ещё раз.'); return; }
+  if (L.looksBroken(raw) && settings.model.accel !== 'cpu') {
+    // видеоускорение выдаёт мусор — переключаемся на процессор и повторяем один раз
+    bubble.remove();
+    appMsg('Похоже, видеоускорение на этом компьютере работает неправильно. Переключаюсь на процессор — ответы станут немного медленнее (изменить можно в настройках).');
+    await repo.update('settings', (s) => { s.model.accel = 'cpu'; return s; });
+    await llm.unload();
+    if (!(await ensureModel())) return;
+    ({ raw, reason, bubble } = await stream(L.buildRequest({ system, history: prior, user: text }), null));
+    if (reason === 'error') { bubble.remove(); appMsg('Модель не ответила. Попробуй ещё раз.'); return; }
+  }
   const { text: clean, actions } = L.extractActions(raw);
   const guard = L.guardClaims(clean, actions.length > 0);
   let content = guard.text || (actions.length ? 'Вот что предлагаю:' : '…');

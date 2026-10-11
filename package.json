@@ -1,6 +1,7 @@
 {
   "name": "iam-assistant",
   "private": true,
+  "type": "module",
   "version": "0.1.0",
   "description": "I AM — помощник дизайн-студии с маскотом и локальным ИИ",
   "scripts": {

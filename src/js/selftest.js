@@ -6,15 +6,22 @@ import * as repo from './core/repo.js';
 import * as Tasks from './core/tasks.js';
 import * as Sched from './core/scheduler.js';
 import { MODELS } from './core/models.js';
+import { looksBroken } from './core/llm.js';
 
 export async function selftest(phase, ui) {
   const report = { phase, at: new Date().toISOString(), ua: navigator.userAgent, checks: [] };
-  const check = async (name, fn) => {
+  const save = () => invoke('store_save', { name: phase === 1 ? 'selftesta' : 'selftestb', data: JSON.stringify(report, null, 1) }).catch(() => {});
+  const partial = () => invoke('store_save', { name: phase === 1 ? 'selftestpa' : 'selftestpb', data: JSON.stringify(report, null, 1) }).catch(() => {});
+  // каждая проверка ограничена по времени, промежуточный отчёт сохраняется после каждой
+  const check = async (name, fn, limit = 300000) => {
     const t0 = performance.now();
-    try { const v = await fn(); report.checks.push({ name, ok: v !== false, value: v === true ? undefined : v, ms: Math.round(performance.now() - t0) }); }
-    catch (e) { report.checks.push({ name, ok: false, error: String(e && e.message || e) }); }
+    report.current = name; await partial();
+    try {
+      const v = await Promise.race([fn(), new Promise((_, j) => setTimeout(() => j(new Error('превышено время ' + limit / 1000 + ' с')), limit))]);
+      report.checks.push({ name, ok: v !== false, value: v === true ? undefined : v, ms: Math.round(performance.now() - t0) });
+    } catch (e) { report.checks.push({ name, ok: false, error: String(e && e.message || e), ms: Math.round(performance.now() - t0) }); }
+    await partial();
   };
-  const save = () => invoke('store_save', { name: phase === 1 ? 'selftesta' : 'selftestb', data: JSON.stringify(report, null, 1) });
 
   if (phase === 1) {
     await check('хранение: запись задачи', async () => {
@@ -54,26 +61,30 @@ export async function selftest(phase, ui) {
   await check('сведения о системе', async () => invoke('system_info'));
 
   // локальная модель (если CI заранее положил её в папку models)
-  const installed = await invoke('models_installed');
+  const installed = phase === 1 ? await invoke('models_installed') : [];   // модели проверяем в первой фазе
+  const ask = async (label) => {
+    let text = ''; let first = 0; const t1 = performance.now();
+    const st = chatStream({ messages: [{ role: 'system', content: 'Ты дружелюбный помощник. Отвечай по-русски, одним-двумя предложениями.' }, { role: 'user', content: 'Привет! Подскажи, как сделать короткий перерыв в работе?' }], max_tokens: 120, temperature: 0.6 }, (d) => { if (!first) first = performance.now(); text += d; });
+    const reason = await st.done;
+    const secs = (performance.now() - (first || t1)) / 1000;
+    const res = { reason, text: text.trim(), first_token_ms: Math.round((first || performance.now()) - t1), chars_per_s: Math.round(text.length / Math.max(secs, 0.01)), cyrillic: /[а-яё]/i.test(text), broken: looksBroken(text) };
+    return res;
+  };
   for (const f of installed) {
     const m = MODELS.find((x) => x.file === f.file); if (!m) continue;
-    const t0 = performance.now();
-    await check(`модель ${m.name}: загрузка в память`, async () => invoke('llm_start', { file: m.file, args: m.args, accel: 'auto', ctx: 4096, unloadAfter: 0 }));
-    report.checks.at(-1).ms = Math.round(performance.now() - t0);
-    await check(`модель ${m.name}: ответ по-русски`, async () => {
-      let text = ''; let first = 0; const t1 = performance.now();
-      const s = chatStream({ messages: [{ role: 'system', content: 'Ты дружелюбный помощник. Отвечай по-русски, одним-двумя предложениями.' }, { role: 'user', content: 'Привет! Подскажи, как сделать короткий перерыв в работе?' }], max_tokens: 120, temperature: 0.6 }, (d) => { if (!first) first = performance.now(); text += d; });
-      const reason = await s.done;
-      const secs = (performance.now() - (first || t1)) / 1000;
-      return { reason, text: text.trim(), first_token_ms: Math.round((first || performance.now()) - t1), chars_per_s: Math.round(text.length / Math.max(secs, 0.01)), cyrillic: /[а-яё]/i.test(text) };
-    });
-    await check(`модель ${m.name}: память при общении`, async () => invoke('llm_status'));
-    await check(`модель ${m.name}: остановка генерации`, async () => {
-      let n = 0; const s = chatStream({ messages: [{ role: 'user', content: 'Напиши длинный рассказ о коте-дизайнере.' }], max_tokens: 800 }, () => { n++; });
-      await new Promise((r) => setTimeout(r, 1500)); await s.cancel(); const reason = await s.done;
-      return reason === 'cancelled' ? { reason, chunks_before_stop: n } : 'не остановилась: ' + reason;
-    });
-    await check(`модель ${m.name}: выгрузка`, async () => { await invoke('llm_stop'); const st = await invoke('llm_status'); return st.state === 'stopped' || st; });
+    for (const accel of ['auto', 'cpu']) {
+      const tag = `модель ${m.name} [${accel === 'auto' ? 'GPU' : 'процессор'}]`;
+      await check(`${tag}: загрузка в память`, async () => invoke('llm_start', { file: m.file, args: m.args, accel, ctx: 4096, unloadAfter: 0 }));
+      await check(`${tag}: ответ по-русски`, ask);
+      const last = report.checks.at(-1); if (last.value && (!last.value.cyrillic || last.value.broken)) last.ok = false;
+      await check(`${tag}: память при общении`, async () => invoke('llm_status'));
+      if (accel === 'auto') await check(`${tag}: остановка генерации`, async () => {
+        let n = 0; const st = chatStream({ messages: [{ role: 'user', content: 'Напиши длинный рассказ о коте-дизайнере.' }], max_tokens: 800 }, () => { n++; });
+        await new Promise((r) => setTimeout(r, 1500)); await st.cancel(); const reason = await st.done;
+        return reason === 'cancelled' ? { reason, chunks_before_stop: n } : 'не остановилась: ' + reason;
+      });
+      await check(`${tag}: выгрузка`, async () => { await invoke('llm_stop'); const st = await invoke('llm_status'); return st.state === 'stopped' || st; });
+    }
   }
   report.done = true;
   await save();

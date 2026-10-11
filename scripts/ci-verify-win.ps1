@@ -15,6 +15,7 @@ $eng = (Get-ChildItem "$dir\llama" -Recurse | Measure-Object Length -Sum).Sum
 $all = (Get-ChildItem "$dir" -Recurse | Measure-Object Length -Sum).Sum
 "engine: $eng bytes`ninstalled_total: $all bytes" | Out-File -Append "$Out\sizes.txt"
 "cpu: $((Get-CimInstance Win32_Processor).Name)`nram: $((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory)`nos: $((Get-CimInstance Win32_OperatingSystem).Caption)" | Out-File -Append "$Out\sizes.txt"
+Get-ChildItem "$dir\llama" | ForEach-Object { "$($_.Name) $($_.Length)" } | Out-File -Append "$Out\sizes.txt"
 Get-Content "$Out\sizes.txt"
 
 $data = "$env:APPDATA\studio.iam.assistant"
@@ -22,9 +23,11 @@ New-Item -ItemType Directory -Force -Path "$data\models" | Out-Null
 curl.exe -fsSL --retry 3 -o "$data\models\Qwen3.5-2B-Q4_K_M.gguf" "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/main/Qwen3.5-2B-Q4_K_M.gguf"
 
 # запрет исходящих соединений для движка ИИ и самого приложения — чат должен работать без сети
-New-NetFirewallRule -DisplayName "IAM block llama" -Direction Outbound -Program "$dir\llama\llama-server.exe" -Action Block | Out-Null
-New-NetFirewallRule -DisplayName "IAM block app" -Direction Outbound -Program $exe.FullName -Action Block | Out-Null
-"firewall: outbound blocked for llama-server.exe and iam-assistant.exe" | Out-File -Append "$Out\sizes.txt"
+# блокируем всё, кроме 127.0.0.0/8 (локальная связь приложения с движком)
+$remote = @("0.0.0.0-126.255.255.255", "128.0.0.0-255.255.255.255")
+New-NetFirewallRule -DisplayName "IAM block llama" -Direction Outbound -Program "$dir\llama\llama-server.exe" -RemoteAddress $remote -Action Block | Out-Null
+New-NetFirewallRule -DisplayName "IAM block app" -Direction Outbound -Program $exe.FullName -RemoteAddress $remote -Action Block | Out-Null
+"firewall: outbound (кроме 127.0.0.0/8) заблокирован для llama-server.exe и iam-assistant.exe" | Out-File -Append "$Out\sizes.txt"
 
 Add-Type -AssemblyName System.Windows.Forms, System.Drawing
 function Shot($path) {
@@ -48,11 +51,12 @@ foreach ($ph in @(@(1, "a"), @(2, "b"))) {
   Start-Sleep 20
   "idle_tree_working_set_bytes: $(TreeRss $p.Id)" | Out-File -Append "$Out\rss-phase$n.txt"
   Shot "$Out\screen-phase$n-start.png"
-  for ($i = 0; $i -lt 120 -and -not (Test-Path $report); $i++) { Start-Sleep 5 }
+  for ($i = 0; $i -lt 300 -and -not (Test-Path $report); $i++) { Start-Sleep 5 }
   Start-Sleep 4; Shot "$Out\screen-phase$n-end.png"
   $p.WaitForExit(60000) | Out-Null
   if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force }
   if (Test-Path $report) { Copy-Item $report $Out } else { "нет отчёта фазы $n" | Out-File "$Out\selftest$($ph[1])-missing.txt" }
+  Copy-Item "$data\data\selftestp$($ph[1]).json" $Out -ErrorAction SilentlyContinue
 }
 Copy-Item "$data\llama.log" "$Out\llama.log" -ErrorAction SilentlyContinue
 Get-ChildItem $Out
