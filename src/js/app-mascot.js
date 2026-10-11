@@ -92,7 +92,12 @@ $('#panel').addEventListener('click', async (e) => {
   if (act === 'dance') { sprite.play('dance', { duration: 6000 }); bubble(say('dance'), { ttl: 3000 }); }
   if (act === 'cheer') { sprite.play('joy'); bubble(say('cheer'), { ttl: 6000, important: true }); }
   if (act === 'dnd') toggleDnd();
-  if (act === 'hide') invoke('mascot_set_visible', { visible: false });
+  if (act === 'hide') {
+    invoke('mascot_set_visible', { visible: false });
+    invoke('notify', { title: 'I AM · маскот спрятался', body: navigator.platform.startsWith('Mac')
+      ? 'Вернуть: значок кота в строке меню вверху справа или щелчок по I AM в Dock.'
+      : 'Вернуть: значок I AM в трее справа внизу (стрелка ^) или снова запустите I AM.' });
+  }
 });
 
 async function toggleDnd(ms = HOUR) {

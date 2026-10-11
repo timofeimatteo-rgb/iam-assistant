@@ -276,7 +276,8 @@ pub fn run() {
     let llm_state = Arc::new(llm::LlmState::new());
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
-            // повторный запуск — просто показываем рабочее окно
+            // повторный запуск: возвращаем маскота и открываем рабочее окно
+            set_mascot_visible(app, true);
             let _ = open_main_window(app, "chat");
         }))
         .plugin(tauri_plugin_autostart::init(
@@ -363,6 +364,11 @@ pub fn run() {
             if code.is_none() {
                 api.prevent_exit();
             }
+        }
+        // macOS: щелчок по значку в Dock возвращает спрятанного маскота
+        #[cfg(target_os = "macos")]
+        RunEvent::Reopen { .. } => {
+            set_mascot_visible(app, true);
         }
         RunEvent::Exit => {
             save_mascot_pos(app);
