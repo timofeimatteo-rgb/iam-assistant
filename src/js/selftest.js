@@ -63,11 +63,11 @@ export async function selftest(phase, ui) {
   // локальная модель (если CI заранее положил её в папку models)
   const installed = phase === 1 ? await invoke('models_installed') : [];   // модели проверяем в первой фазе
   const ask = async (label) => {
-    let text = ''; let first = 0; const t1 = performance.now();
-    const st = chatStream({ messages: [{ role: 'system', content: 'Ты дружелюбный помощник. Отвечай по-русски, одним-двумя предложениями.' }, { role: 'user', content: 'Привет! Подскажи, как сделать короткий перерыв в работе?' }], max_tokens: 120, temperature: 0.6 }, (d) => { if (!first) first = performance.now(); text += d; });
+    let text = ''; let first = 0; let reasoning = 0; const t1 = performance.now();
+    const st = chatStream({ messages: [{ role: 'system', content: 'Ты дружелюбный помощник. Отвечай по-русски, одним-двумя предложениями.' }, { role: 'user', content: 'Привет! Подскажи, как сделать короткий перерыв в работе?' }], max_tokens: 160, temperature: 0.6 }, (d) => { if (!first) first = performance.now(); text += d; }, (r) => { reasoning += r.length; });
     const reason = await st.done;
     const secs = (performance.now() - (first || t1)) / 1000;
-    const res = { reason, text: text.trim(), first_token_ms: Math.round((first || performance.now()) - t1), chars_per_s: Math.round(text.length / Math.max(secs, 0.01)), cyrillic: /[а-яё]/i.test(text), broken: looksBroken(text) };
+    const res = { reason, text: text.trim(), first_token_ms: Math.round((first || performance.now()) - t1), chars_per_s: Math.round(text.length / Math.max(secs, 0.01)), cyrillic: /[а-яё]/i.test(text), broken: looksBroken(text), reasoning_chars: reasoning };
     return res;
   };
   for (const f of installed) {

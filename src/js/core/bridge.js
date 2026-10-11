@@ -53,7 +53,7 @@ export function windowLabel() {
 
 // ---------- потоковый чат с локальной моделью ----------
 // onDelta(text) вызывается на каждый фрагмент. Возвращает {cancel, done:Promise}.
-export function chatStream(body, onDelta) {
+export function chatStream(body, onDelta, onReasoning) {
   if (isTauri) {
     const id = Math.random().toString(36).slice(2);
     const ch = new T.core.Channel();
@@ -61,6 +61,7 @@ export function chatStream(body, onDelta) {
     const done = new Promise((r, j) => { resolveDone = r; rejectDone = j; });
     ch.onmessage = (m) => {
       if (m.type === 'delta') onDelta(m.text);
+      else if (m.type === 'reasoning') onReasoning && onReasoning(m.text);
       else if (m.type === 'done') resolveDone(m.reason || 'stop');
       else if (m.type === 'error') rejectDone(new Error(m.message));
     };

@@ -54,8 +54,9 @@ fn open_main_window(app: &AppHandle, tab: &str) -> Result<(), String> {
     Ok(())
 }
 
+// async обязателен: создание окна из синхронной команды на Windows приводит к взаимоблокировке
 #[tauri::command]
-fn open_main(app: AppHandle, tab: Option<String>) -> Result<(), String> {
+async fn open_main(app: AppHandle, tab: Option<String>) -> Result<(), String> {
     open_main_window(&app, tab.as_deref().unwrap_or(""))
 }
 

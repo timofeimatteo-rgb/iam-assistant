@@ -310,6 +310,10 @@ pub async fn llm_chat(
     let result = async {
         let mut req: Value = serde_json::from_str(&body).map_err(|e| e.to_string())?;
         req["stream"] = json!(true);
+        // режим «размышлений» не нужен: короткие ответы и меньше ожидания
+        if req.get("chat_template_kwargs").is_none() {
+            req["chat_template_kwargs"] = json!({ "enable_thinking": false });
+        }
         let client = reqwest::Client::builder()
             .no_proxy()
             .build()
@@ -347,9 +351,15 @@ pub async fn llm_chat(
                     return Ok("stop");
                 }
                 if let Ok(v) = serde_json::from_str::<Value>(data) {
-                    if let Some(t) = v["choices"][0]["delta"]["content"].as_str() {
+                    let delta = &v["choices"][0]["delta"];
+                    if let Some(t) = delta["content"].as_str() {
                         if !t.is_empty() {
                             let _ = on_event.send(json!({ "type": "delta", "text": t }));
+                        }
+                    }
+                    if let Some(t) = delta["reasoning_content"].as_str() {
+                        if !t.is_empty() {
+                            let _ = on_event.send(json!({ "type": "reasoning", "text": t }));
                         }
                     }
                 }
