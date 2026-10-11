@@ -1,0 +1,33 @@
+installer: 18955581 bytes
+installed_to: C:\Users\runneradmin\AppData\Local\I AM
+exe: 7608832 bytes
+engine: 89483264 bytes
+installed_total: 97171693 bytes
+cpu: AMD EPYC 7763 64-Core Processor                
+ram: 17174360064
+os: Microsoft Windows Server 2025 Datacenter
+ggml-base.dll 803328
+ggml-cpu-alderlake.dll 1434624
+ggml-cpu-cannonlake.dll 1614336
+ggml-cpu-cascadelake.dll 1598976
+ggml-cpu-cooperlake.dll 1608704
+ggml-cpu-haswell.dll 1439232
+ggml-cpu-icelake.dll 1606144
+ggml-cpu-ivybridge.dll 1314816
+ggml-cpu-piledriver.dll 1307648
+ggml-cpu-sandybridge.dll 1289728
+ggml-cpu-sapphirerapids.dll 1885696
+ggml-cpu-skylakex.dll 1608192
+ggml-cpu-sse42.dll 915456
+ggml-cpu-x64.dll 908288
+ggml-cpu-zen4.dll 1615360
+ggml-rpc.dll 168960
+ggml-vulkan.dll 45305344
+ggml.dll 79872
+libomp.dll 768000
+llama-common.dll 7924224
+llama-server-impl.dll 9170944
+llama-server.exe 9216
+llama.dll 3311104
+mtmd.dll 1795072
+firewall: outbound (кроме 127.0.0.0/8) заблокирован для llama-server.exe и iam-assistant.exe

@@ -1,0 +1,162 @@
+{
+ "phase": 1,
+ "at": "2026-10-11T19:44:47.034Z",
+ "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0",
+ "checks": [
+  {
+   "name": "хранение: запись задачи",
+   "ok": true,
+   "ms": 15
+  },
+  {
+   "name": "настройки: первый запуск пройден",
+   "ok": true,
+   "ms": 23
+  },
+  {
+   "name": "автозапуск: включить",
+   "ok": true,
+   "ms": 11
+  },
+  {
+   "name": "автозапуск: выключить",
+   "ok": true,
+   "ms": 7
+  },
+  {
+   "name": "системное уведомление",
+   "ok": true,
+   "ms": 5
+  },
+  {
+   "name": "окно маскота: изменение размера",
+   "ok": true,
+   "ms": 18
+  },
+  {
+   "name": "напоминание срабатывает",
+   "ok": true,
+   "ms": 20
+  },
+  {
+   "name": "«Не беспокоить» задерживает напоминание",
+   "ok": true,
+   "ms": 106
+  },
+  {
+   "name": "ресурсы в ожидании",
+   "ok": true,
+   "value": {
+    "app_rss": 442277888,
+    "app_size": 7608832,
+    "engine_size": 89483264,
+    "llm_rss": 0,
+    "models_size": 1280835840
+   },
+   "ms": 34
+  },
+  {
+   "name": "сведения о системе",
+   "ok": true,
+   "value": {
+    "arch": "x86_64",
+    "cpus": 4,
+    "free_disk": 32468840448,
+    "os": "windows",
+    "total_ram": 17174360064
+   },
+   "ms": 7
+  },
+  {
+   "name": "модель Qwen3.5 2B [GPU]: загрузка в память",
+   "ok": true,
+   "value": {
+    "gpu": true,
+    "port": 52056,
+    "state": "ready"
+   },
+   "ms": 3572
+  },
+  {
+   "name": "модель Qwen3.5 2B [GPU]: ответ по-русски",
+   "ok": true,
+   "value": {
+    "reason": "stop",
+    "text": "Привет! Сделать короткий перерыв в работе легко. Просто встань на минутку, подыши глубоким вдохом и позволь себе немного отдохнуть.",
+    "first_token_ms": 1709,
+    "chars_per_s": 45,
+    "cyrillic": true,
+    "broken": false,
+    "reasoning_chars": 0
+   },
+   "ms": 4606
+  },
+  {
+   "name": "модель Qwen3.5 2B [GPU]: память при общении",
+   "ok": true,
+   "value": {
+    "file": "Qwen3.5-2B-Q4_K_M.gguf",
+    "port": 52056,
+    "rss": 2042777600,
+    "state": "ready"
+   },
+   "ms": 42
+  },
+  {
+   "name": "модель Qwen3.5 2B [GPU]: остановка генерации",
+   "ok": true,
+   "value": {
+    "reason": "cancelled",
+    "chunks_before_stop": 9
+   },
+   "ms": 1558
+  },
+  {
+   "name": "модель Qwen3.5 2B [GPU]: выгрузка",
+   "ok": true,
+   "ms": 196
+  },
+  {
+   "name": "модель Qwen3.5 2B [процессор]: загрузка в память",
+   "ok": true,
+   "value": {
+    "gpu": false,
+    "port": 52075,
+    "state": "ready"
+   },
+   "ms": 2337
+  },
+  {
+   "name": "модель Qwen3.5 2B [процессор]: ответ по-русски",
+   "ok": true,
+   "value": {
+    "reason": "stop",
+    "text": "Привет! Сделать короткий перерыв можно за 5 минут, например, выпив стакан воды, пройтись по комнате или сделать 10 глубоких вдохов и выдохов.",
+    "first_token_ms": 1397,
+    "chars_per_s": 54,
+    "cyrillic": true,
+    "broken": false,
+    "reasoning_chars": 0
+   },
+   "ms": 4026
+  },
+  {
+   "name": "модель Qwen3.5 2B [процессор]: память при общении",
+   "ok": true,
+   "value": {
+    "file": "Qwen3.5-2B-Q4_K_M.gguf",
+    "port": 52075,
+    "rss": 2041634816,
+    "state": "ready"
+   },
+   "ms": 33
+  },
+  {
+   "name": "модель Qwen3.5 2B [процессор]: выгрузка",
+   "ok": true,
+   "ms": 210
+  }
+ ],
+ "current": "модель Qwen3.5 2B [процессор]: выгрузка",
+ "done": true
+}

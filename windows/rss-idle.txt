@@ -1,0 +1,2 @@
+idle_mascot_only_tree_working_set_bytes: 322207744
+idle_main_process_working_set_bytes: 31047680
